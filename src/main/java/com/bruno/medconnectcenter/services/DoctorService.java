@@ -12,6 +12,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -65,7 +66,7 @@ public class DoctorService {
         }
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.SUPPORTS)
     public void deleteById(Long id){
         if(!doctorRepository.existsById(id)){
             throw new EntityNotFoundException("Médico não encontrado!");

@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface DoctorScheduleRepository extends JpaRepository<DoctorSchedule, Long> {
 
-    List<DoctorSchedule> findByDoctor(Long doctorId);
+    List<DoctorSchedule> findByDoctorId(Long doctorId);
 
     @Query("SELECT CASE WHEN COUNT(s) > 0 THEN true ELSE false END " +
             "FROM DoctorSchedule s " +

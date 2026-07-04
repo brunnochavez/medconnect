@@ -8,6 +8,6 @@ public record DoctorDetailsDTO(
         String crm,
         String phone,
         String email,
-        Set<SpecialtyResponseDTO> Specialties
+        Set<SpecialtyResponseDTO> specialties
 ) {
 }

@@ -88,8 +88,8 @@ public class AppointmentService {
                 appointment.getAppointmentDateTime(),
                 appointment.getObservations(),
                 appointment.getStatus(),
-                appointment.getDoctor().getId(),
-                appointment.getPatient().getId()
+                appointment.getPatient().getId(),
+                appointment.getDoctor().getId()
         );
     }
 }
