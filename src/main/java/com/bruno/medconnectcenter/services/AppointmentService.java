@@ -3,8 +3,10 @@ import com.bruno.medconnectcenter.dtos.AppointmentRequestDTO;
 import com.bruno.medconnectcenter.dtos.AppointmentResponseDTO;
 import com.bruno.medconnectcenter.entities.Appointment;
 import com.bruno.medconnectcenter.entities.AppointmentStatus;
+
 import com.bruno.medconnectcenter.repositories.AppointmentRepository;
 import com.bruno.medconnectcenter.repositories.DoctorRepository;
+import com.bruno.medconnectcenter.repositories.DoctorScheduleRepository;
 import com.bruno.medconnectcenter.repositories.PatientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final PatientRepository patientRepository;
     private final DoctorRepository doctorRepository;
+    private final DoctorScheduleRepository doctorScheduleRepository;
 
     @Transactional
     public AppointmentResponseDTO insert(AppointmentRequestDTO dto){
@@ -44,6 +47,19 @@ public class AppointmentService {
 
         if(dto.appointmentDateTime().isBefore(LocalDateTime.now())){
             throw new IllegalArgumentException("A data da consulta não pode estar no passado!");
+        }
+
+        java.time.DayOfWeek dayOfWeek = dto.appointmentDateTime().getDayOfWeek();
+        java.time.LocalTime time = dto.appointmentDateTime().toLocalTime();
+
+        boolean isDoctorAvailable = doctorScheduleRepository.existsAvailableSchedule(
+                dto.doctorId(),
+                dayOfWeek,
+                time
+        );
+
+        if(!isDoctorAvailable){
+            throw new IllegalArgumentException("Este médico não atende no dia ou horário informados!");
         }
 
         Appointment appointment = new Appointment();
