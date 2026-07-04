@@ -5,6 +5,8 @@ import com.bruno.medconnectcenter.dtos.AppointmentResponseDTO;
 import com.bruno.medconnectcenter.services.AppointmentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -27,5 +29,11 @@ public class AppointmentController {
                 .buildAndExpand(dtoResponse.id()).toUri();
 
         return ResponseEntity.created(uri).body(dtoResponse);
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<AppointmentResponseDTO>> findAll(Pageable pageable){
+        Page<AppointmentResponseDTO> listAppointments = appointmentService.findAll(pageable);
+        return ResponseEntity.ok(listAppointments);
     }
 }

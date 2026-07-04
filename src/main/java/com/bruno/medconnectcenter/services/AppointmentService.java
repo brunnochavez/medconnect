@@ -9,6 +9,8 @@ import com.bruno.medconnectcenter.repositories.DoctorRepository;
 import com.bruno.medconnectcenter.repositories.DoctorScheduleRepository;
 import com.bruno.medconnectcenter.repositories.PatientRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
@@ -72,6 +74,12 @@ public class AppointmentService {
         appointment = appointmentRepository.save(appointment);
 
         return toResponseDto(appointment);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<AppointmentResponseDTO> findAll(Pageable pageable){
+        Page<Appointment> listAppointments = appointmentRepository.findAll(pageable);
+        return listAppointments.map(this::toResponseDto);
     }
 
     private AppointmentResponseDTO toResponseDto(Appointment appointment) {
