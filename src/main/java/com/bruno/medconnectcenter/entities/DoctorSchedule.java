@@ -5,6 +5,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -20,8 +22,13 @@ public class DoctorSchedule {
     private Long id;
 
     @Enumerated(value = EnumType.STRING)
+    @Column(nullable = false)
     private DayOfWeek dayOfWeek;
+
+    @Column(nullable = false)
     private LocalTime startTime;
+
+    @Column(nullable = false)
     private LocalTime endTime;
 
     @CreationTimestamp
@@ -31,6 +38,7 @@ public class DoctorSchedule {
     private LocalDateTime updatedAt;
 
     @ManyToOne
-    @JoinColumn(name = "doctor_id")
+    @JoinColumn(name = "doctor_id", nullable = false)
     private Doctor doctor;
+
 }

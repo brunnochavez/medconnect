@@ -7,13 +7,13 @@ import java.time.LocalDateTime;
 
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
-    Boolean existsByDoctorIdAndAppointmentDateTimeAndStatus(
+    boolean existsByDoctorIdAndAppointmentDateTimeAndStatus(
             Long doctorId,
             LocalDateTime dateTime,
             AppointmentStatus status
     );
 
-    Boolean existsByPatientIdAndAppointmentDateTimeAndStatus(
+    boolean existsByPatientIdAndAppointmentDateTimeAndStatus(
             Long patientId,
             LocalDateTime dateTime,
             AppointmentStatus status

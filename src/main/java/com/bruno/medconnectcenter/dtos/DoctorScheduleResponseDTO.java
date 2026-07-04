@@ -1,5 +1,5 @@
 package com.bruno.medconnectcenter.dtos;
-import com.bruno.medconnectcenter.entities.DayOfWeek;
+import java.time.DayOfWeek;
 import java.time.LocalTime;
 
 public record DoctorScheduleResponseDTO(
