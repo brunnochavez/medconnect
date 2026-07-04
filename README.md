@@ -58,6 +58,7 @@ Para validar as regras de negócio e testar a comunicação com a camada de serv
 * **Tratamento de Exceções Customizadas:** Criar exceções como `ScheduleConflictException` para retornar erros claros ao usuário na resposta da API.
 * **Testes de Integração:** Escrever testes que tentem forçar agendamentos duplicados para garantir que a lógica de proteção de integridade dos dados está funcionando corretamente.
 
+```mermaid
 classDiagram
     class Patient {
         +Long id
@@ -119,3 +120,4 @@ classDiagram
     Doctor "1" --> "*" Appointment : performs
     Doctor "*" --> "*" Specialty : has
     Doctor "1" --> "*" DoctorSchedule : defines
+```
