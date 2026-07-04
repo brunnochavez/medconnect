@@ -1,6 +1,8 @@
 package com.bruno.medconnectcenter.services;
+import com.bruno.medconnectcenter.dtos.DoctorDetailsDTO;
 import com.bruno.medconnectcenter.dtos.DoctorRequestDTO;
 import com.bruno.medconnectcenter.dtos.DoctorResponseDTO;
+import com.bruno.medconnectcenter.dtos.SpecialtyResponseDTO;
 import com.bruno.medconnectcenter.entities.Doctor;
 import com.bruno.medconnectcenter.repositories.DoctorRepository;
 import com.bruno.medconnectcenter.repositories.SpecialtyRepository;
@@ -11,6 +13,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,17 +24,17 @@ public class DoctorService {
     private final SpecialtyRepository specialtyRepository;
 
     @Transactional(readOnly = true)
-    public DoctorResponseDTO findById(Long id){
+    public DoctorDetailsDTO findById(Long id){
         Doctor doctor = doctorRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Médico não encontrado!")
         );
-        return entityToDto(doctor);
+        return toDetailsDto(doctor);
     }
 
     @Transactional(readOnly = true)
     public Page<DoctorResponseDTO> findAll(Pageable pageable){
         Page<Doctor> listDoctors = doctorRepository.findAll(pageable);
-        return listDoctors.map(this::entityToDto);
+        return listDoctors.map(this::toResponseDto);
     }
 
     @Transactional
@@ -41,7 +45,7 @@ public class DoctorService {
             doctor.getSpecialtyList().add(specialtyRepository.getReferenceById(specialtyId));
         }
         doctor = doctorRepository.save(doctor);
-        return entityToDto(doctor);
+        return toResponseDto(doctor);
     }
 
     @Transactional
@@ -54,7 +58,7 @@ public class DoctorService {
                 doctor.getSpecialtyList().add(specialtyRepository.getReferenceById(specialtyId));
             }
             doctor = doctorRepository.save(doctor);
-            return entityToDto(doctor);
+            return toResponseDto(doctor);
         }
         catch (EntityNotFoundException e){
             throw  new EntityNotFoundException("Médico não encontrado!");
@@ -74,8 +78,23 @@ public class DoctorService {
         }
     }
 
-    private DoctorResponseDTO entityToDto(Doctor doctor){
+    private DoctorResponseDTO toResponseDto(Doctor doctor){
        return new DoctorResponseDTO(doctor.getId(), doctor.getName(), doctor.getCrm());
+    }
+
+    private DoctorDetailsDTO toDetailsDto(Doctor doctor){
+        Set<SpecialtyResponseDTO> specialtyDto = doctor.getSpecialtyList().stream()
+                .map(specialty -> new SpecialtyResponseDTO(specialty.getId(), specialty.getName()))
+                .collect(Collectors.toSet());
+
+        return new DoctorDetailsDTO(
+                doctor.getId(),
+                doctor.getName(),
+                doctor.getCrm(),
+                doctor.getPhone(),
+                doctor.getEmail(),
+                specialtyDto
+        );
     }
 
     private void dtoToEntity(DoctorRequestDTO dto, Doctor doctor){

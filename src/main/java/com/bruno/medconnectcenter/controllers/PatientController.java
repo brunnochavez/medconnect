@@ -1,4 +1,5 @@
 package com.bruno.medconnectcenter.controllers;
+import com.bruno.medconnectcenter.dtos.PatientDetailsDTO;
 import com.bruno.medconnectcenter.dtos.PatientRequestDTO;
 import com.bruno.medconnectcenter.dtos.PatientResponseDTO;
 import com.bruno.medconnectcenter.services.PatientService;
@@ -19,8 +20,8 @@ public class PatientController {
     private final PatientService patientService;
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<PatientResponseDTO> findById(@PathVariable Long id){
-        PatientResponseDTO dto = patientService.findById(id);
+    public ResponseEntity<PatientDetailsDTO> findById(@PathVariable Long id){
+        PatientDetailsDTO dto = patientService.findById(id);
         return ResponseEntity.ok(dto);
     }
 
