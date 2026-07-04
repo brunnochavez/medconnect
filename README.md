@@ -57,3 +57,65 @@ Para validar as regras de negócio e testar a comunicação com a camada de serv
 * **Relacionamentos Many-to-Many:** Gerenciar a relação entre Médicos e Especialidades de forma eficiente.
 * **Tratamento de Exceções Customizadas:** Criar exceções como `ScheduleConflictException` para retornar erros claros ao usuário na resposta da API.
 * **Testes de Integração:** Escrever testes que tentem forçar agendamentos duplicados para garantir que a lógica de proteção de integridade dos dados está funcionando corretamente.
+
+classDiagram
+    class Patient {
+        +Long id
+        +String name
+        +String cpf
+        +LocalDate birthDate
+        +String phone
+        +String email
+        +String address
+    }
+
+    class Doctor {
+        +Long id
+        +String name
+        +String crm
+        +String phone
+        +String email
+    }
+
+    class Specialty {
+        +Long id
+        +String name
+    }
+
+    class Appointment {
+        +Long id
+        +LocalDateTime appointmentDateTime
+        +String observations
+        +AppointmentStatus status
+    }
+
+    class DoctorSchedule {
+        +Long id
+        +DayOfWeek dayOfWeek
+        +LocalTime startTime
+        +LocalTime endTime
+    }
+
+    class AppointmentStatus {
+        <<enumeration>>
+        AGENDADA
+        CONFIRMADA
+        CANCELADA
+        REALIZADA
+    }
+
+    class DayOfWeek {
+        <<enumeration>>
+        MONDAY
+        TUESDAY
+        WEDNESDAY
+        THURSDAY
+        FRIDAY
+        SATURDAY
+        SUNDAY
+    }
+
+    Patient "1" --> "*" Appointment : has
+    Doctor "1" --> "*" Appointment : performs
+    Doctor "*" --> "*" Specialty : has
+    Doctor "1" --> "*" DoctorSchedule : defines
