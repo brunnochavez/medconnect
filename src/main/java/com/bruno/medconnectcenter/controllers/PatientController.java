@@ -48,5 +48,4 @@ public class PatientController {
         patientService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
-
 }

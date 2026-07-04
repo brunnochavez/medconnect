@@ -68,8 +68,7 @@ public class PatientService {
     }
 
     private PatientResponseDTO entityToDto(Patient p){
-        PatientResponseDTO dto = new PatientResponseDTO(p.getId(), p.getName(), p.getPhone());
-        return dto;
+        return new PatientResponseDTO(p.getId(), p.getName(), p.getPhone());
     }
 
     private void dtoToentity(PatientRequestDTO dto, Patient patient){
