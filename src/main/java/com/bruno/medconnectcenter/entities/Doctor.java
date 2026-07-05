@@ -19,9 +19,17 @@ public class Doctor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, length = 150)
     private String name;
+
+    @Column(nullable = false, unique = true)
     private String crm;
+
+    @Column(nullable = false, length = 13)
     private String phone;
+
+    @Column(nullable = false, unique = true, length = 100)
     private String email;
 
     @CreationTimestamp

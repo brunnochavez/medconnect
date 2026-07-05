@@ -3,11 +3,11 @@ import com.bruno.medconnectcenter.dtos.AppointmentRequestDTO;
 import com.bruno.medconnectcenter.dtos.AppointmentResponseDTO;
 import com.bruno.medconnectcenter.entities.Appointment;
 import com.bruno.medconnectcenter.entities.AppointmentStatus;
-
 import com.bruno.medconnectcenter.repositories.AppointmentRepository;
 import com.bruno.medconnectcenter.repositories.DoctorRepository;
 import com.bruno.medconnectcenter.repositories.DoctorScheduleRepository;
 import com.bruno.medconnectcenter.repositories.PatientRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,13 +24,27 @@ public class AppointmentService {
     private final DoctorRepository doctorRepository;
     private final DoctorScheduleRepository doctorScheduleRepository;
 
+    @Transactional(readOnly = true)
+    public AppointmentResponseDTO findById(Long id){
+        Appointment appointment = appointmentRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("Consulta não encontrada!")
+        );
+        return toResponseDto(appointment);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<AppointmentResponseDTO> findAll(Pageable pageable){
+        Page<Appointment> listAppointments = appointmentRepository.findAll(pageable);
+        return listAppointments.map(this::toResponseDto);
+    }
+
     @Transactional
     public AppointmentResponseDTO insert(AppointmentRequestDTO dto){
 
         boolean doctorConflict = appointmentRepository.existsByDoctorIdAndAppointmentDateTimeAndStatus(
-          dto.doctorId(),
-          dto.appointmentDateTime(),
-          AppointmentStatus.AGENDADA
+                dto.doctorId(),
+                dto.appointmentDateTime(),
+                AppointmentStatus.AGENDADA
         );
 
         if(doctorConflict){
@@ -76,10 +90,47 @@ public class AppointmentService {
         return toResponseDto(appointment);
     }
 
-    @Transactional(readOnly = true)
-    public Page<AppointmentResponseDTO> findAll(Pageable pageable){
-        Page<Appointment> listAppointments = appointmentRepository.findAll(pageable);
-        return listAppointments.map(this::toResponseDto);
+    @Transactional
+    public AppointmentResponseDTO confirm(Long id){
+        Appointment appointment = verify(id);
+
+        if(appointment.getAppointmentDateTime().isBefore(LocalDateTime.now())){
+            throw new IllegalArgumentException("A consulta já foi realizada!");
+        }
+
+        if(appointment.getStatus() != AppointmentStatus.AGENDADA){
+            throw new IllegalArgumentException("A consulta já foi realizada ou cancelada!");
+        }
+
+        appointment.setStatus(AppointmentStatus.CONFIRMADA);
+        appointment = appointmentRepository.save(appointment);
+        return toResponseDto(appointment);
+    }
+
+    @Transactional
+    public AppointmentResponseDTO cancel(Long id){
+        Appointment appointment = verify(id);
+
+        if(appointment.getAppointmentDateTime().isBefore(LocalDateTime.now())){
+            throw new IllegalArgumentException("A consulta já foi realizada!");
+        }
+
+        appointment.setStatus(AppointmentStatus.CANCELADA);
+        appointment = appointmentRepository.save(appointment);
+        return toResponseDto(appointment);
+    }
+
+    @Transactional
+    public AppointmentResponseDTO carriedOut(Long id){
+        Appointment appointment = verify(id);
+
+        if(appointment.getStatus() != AppointmentStatus.REALIZADA){
+            throw new IllegalArgumentException("A consulta foi realizada.");
+        }
+
+        appointment.setStatus(AppointmentStatus.REALIZADA);
+        appointment = appointmentRepository.save(appointment);
+        return toResponseDto(appointment);
     }
 
     private AppointmentResponseDTO toResponseDto(Appointment appointment) {
@@ -91,5 +142,16 @@ public class AppointmentService {
                 appointment.getPatient().getId(),
                 appointment.getDoctor().getId()
         );
+    }
+
+    public Appointment verify(Long id){
+        Appointment appointment = appointmentRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("Consulta não encontrada!")
+        );
+
+        if(appointment.getStatus() == AppointmentStatus.CANCELADA){
+            throw new IllegalArgumentException("A consulta encontra-se cancelada!");
+        }
+        return appointment;
     }
 }

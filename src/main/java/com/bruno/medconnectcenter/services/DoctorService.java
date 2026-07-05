@@ -1,5 +1,5 @@
 package com.bruno.medconnectcenter.services;
-import com.bruno.medconnectcenter.dtos.DoctorDetailsDTO;
+import com.bruno.medconnectcenter.dtos.DoctorResponseDetailsDTO;
 import com.bruno.medconnectcenter.dtos.DoctorRequestDTO;
 import com.bruno.medconnectcenter.dtos.DoctorResponseDTO;
 import com.bruno.medconnectcenter.dtos.SpecialtyResponseDTO;
@@ -25,7 +25,7 @@ public class DoctorService {
     private final SpecialtyRepository specialtyRepository;
 
     @Transactional(readOnly = true)
-    public DoctorDetailsDTO findById(Long id){
+    public DoctorResponseDetailsDTO findById(Long id){
         Doctor doctor = doctorRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Médico não encontrado!")
         );
@@ -83,12 +83,12 @@ public class DoctorService {
        return new DoctorResponseDTO(doctor.getId(), doctor.getName(), doctor.getCrm());
     }
 
-    private DoctorDetailsDTO toDetailsDto(Doctor doctor){
+    private DoctorResponseDetailsDTO toDetailsDto(Doctor doctor){
         Set<SpecialtyResponseDTO> specialtyDto = doctor.getSpecialtyList().stream()
                 .map(specialty -> new SpecialtyResponseDTO(specialty.getId(), specialty.getName()))
                 .collect(Collectors.toSet());
 
-        return new DoctorDetailsDTO(
+        return new DoctorResponseDetailsDTO(
                 doctor.getId(),
                 doctor.getName(),
                 doctor.getCrm(),

@@ -24,7 +24,6 @@ public class PatientService {
         Patient patient = patientRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Paciente não encontrado!")
         );
-
         return toDetailsDto(patient);
     }
 

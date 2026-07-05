@@ -2,7 +2,7 @@ package com.bruno.medconnectcenter.dtos;
 
 import java.util.Set;
 
-public record DoctorDetailsDTO(
+public record DoctorResponseDetailsDTO(
         Long id,
         String name,
         String crm,
