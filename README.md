@@ -58,14 +58,18 @@ classDiagram
         +Long id
         +String name
         +String cpf
-        ...
+        +LocalDate birthDate
+        +String phone
+        +String email
+        +String address
     }
 
     class Doctor {
         +Long id
         +String name
         +String crm
-        ...
+        +String phone
+        +String email
     }
 
     class Specialty {
@@ -76,6 +80,7 @@ classDiagram
     class Appointment {
         +Long id
         +LocalDateTime appointmentDateTime
+        +String observations
         +AppointmentStatus status
     }
 
@@ -86,7 +91,22 @@ classDiagram
         +LocalTime endTime
     }
 
-    Patient "1" --> "*" Appointment : tem
-    Doctor "1" --> "*" Appointment : atende
-    Doctor "*" --> "*" Specialty : possui
-    Doctor "1" --> "*" DoctorSchedule : trabalha
+    class AppointmentStatus {
+        <<enumeration>>
+        AGENDADA
+        CONFIRMADA
+        CANCELADA
+        REALIZADA
+    }
+
+    class DayOfWeek {
+        <<enumeration>>
+        MONDAY
+        ...
+        SUNDAY
+    }
+
+    Patient "1" --> "*" Appointment : has
+    Doctor "1" --> "*" Appointment : performs
+    Doctor "*" --> "*" Specialty : has
+    Doctor "1" --> "*" DoctorSchedule : defines
