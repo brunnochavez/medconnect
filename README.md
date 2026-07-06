@@ -1,62 +1,58 @@
-# MedConnect - Sistema de Gestão de Clínica Médica
+# MedConnect - Sistema de Gestão de Clínica Médica 🩺
 
-O MedConnect é um sistema backend desenvolvido com Spring Boot para gerenciar as operações de uma clínica médica. O foco central deste projeto é o agendamento de consultas, o que exige um rigoroso controle de consistência de dados e a implementação de regras de negócio complexas para evitar conflitos de horários entre médicos e pacientes. Este projeto garante a integridade das informações e a validação de regras cruzadas em um domínio complexo.
+O **MedConnect** é um sistema completo (Backend em Spring Boot e Frontend em React) desenvolvido para gerenciar as operações diárias de uma clínica médica moderna. 
+
+O foco central da arquitetura de backend deste projeto é a **consistência de dados e a blindagem de regras de negócio** em um domínio complexo de agendamentos. A API não atua apenas como um CRUD, mas como um motor inteligente que prevê conflitos, calcula blocos de tempo exatos (slots) e garante a integridade da agenda médica.
 
 ---
 
-## Funcionalidades Principais
+## 🚀 Diferenciais Técnicos (Highlights)
+
+* **Motor de Agendamento Proativo:** Algoritmo que cruza a grade de trabalho do médico com as consultas já marcadas (evitando o problema de N+1 Queries) para devolver ao front-end apenas os horários rigorosamente livres.
+* **Fatiamento de Tempo Discreto:** Validações matemáticas que travam a agenda em blocos exatos de 15 em 15 minutos, impedindo dados corrompidos (ex: requisições com segundos ou minutos quebrados).
+* **Fail-Fast Validation:** Uso rigoroso de `Jakarta Bean Validation` (`@NotNull`, `@NotBlank`) e validações nativas do Java (`java.time`) antes de qualquer ida ao banco de dados, otimizando a performance do servidor.
+* **Database Seeding Automático:** Classe `TestConfig` estruturada via `CommandLineRunner` para popular o banco em perfis de teste, garantindo um ambiente pronto para uso no Front-end ou Postman assim que o servidor sobe.
+
+---
+
+## ⚙️ Funcionalidades Principais
 
 | Funcionalidade | Descrição |
 | :--- | :--- |
-| **Gestão de Pacientes e Médicos** | Cadastro e consulta de pacientes (por CPF) e médicos (por CRM e especialidade). |
-| **Agendamento de Consultas** | Marcação de consultas validando disponibilidade do médico, do paciente e especialidade. |
-| **Agenda do Médico** | Definição de horários de atendimento específicos por dia da semana para cada médico. |
-| **Controle de Status** | Gerenciamento do ciclo de vida da consulta: AGENDADA, CONFIRMADA, CANCELADA ou REALIZADA. |
+| **Gestão de Pacientes e Médicos** | Cadastro estruturado via DTOs de pacientes e médicos. |
+| **Grade de Trabalho (Schedules)** | Definição de horários de atendimento específicos por dia da semana para cada médico. |
+| **Motor de Horários Livres** | Endpoint exclusivo que calcula e retorna apenas os horários disponíveis de um médico em um dia específico. |
+| **Agendamento com Proteção** | Marcação de consultas validando conflitos do médico, do paciente, bloqueio de datas passadas e obediência à grade de trabalho. |
+| **Máquina de Estados** | Gerenciamento do ciclo de vida da consulta: `AGENDADA`, `CONFIRMADA`, `CANCELADA` ou `REALIZADA`. |
 
 ---
 
-## Regras de Negócio
+## 🛡️ Regras de Negócio e Validações
 
-* **Sem Conflitos de Horário:** Um médico não pode ter dois pacientes no mesmo horário, e um paciente não pode ter duas consultas simultâneas.
-* **Validação de Especialidade:** Só é possível agendar uma consulta se a especialidade solicitada for uma das especialidades cadastradas para o médico.
-* **Data Futura:** Consultas só podem ser agendadas para datas e horários futuros.
-* **Horário de Atendimento:** O agendamento deve obrigatoriamente cair dentro de uma janela de horário em que o médico esteja disponível na sua agenda.
-
----
-
-## Estrutura de Entidades Principais
-
-* **Patient:** Dados cadastrais do paciente, com CPF como identificador único de negócio.
-* **Doctor:** Dados do médico, incluindo CRM e o relacionamento com suas especialidades.
-* **Specialty:** Catálogo de especialidades médicas.
-* **Appointment:** A entidade central que vincula paciente, médico e horário, controlando o status da consulta.
-* **DoctorSchedule:** Define as janelas de disponibilidade (dia da semana, hora início e fim) para cada médico.
+1. **Sem Conflitos Simultâneos:** Um médico não pode ter dois pacientes no mesmo horário, e um paciente não pode ter duas consultas ao mesmo tempo.
+2. **Intervalos Rígidos:** Consultas ocorrem estritamente de 15 em 15 minutos. Tolerância zero para dados com segundos e milissegundos.
+3. **Bloqueio Temporal:** Consultas só podem ser agendadas para datas e horários no futuro.
+4. **Alinhamento com a Grade:** O agendamento deve obrigatoriamente cair dentro da janela de disponibilidade (dia da semana, hora início e fim) da agenda daquele médico.
 
 ---
 
-## Stack Tecnológica
+## 💻 Stack Tecnológica
 
+**Backend:**
 * **Linguagem:** Java 17+
 * **Framework:** Spring Boot 3+
 * **Persistência:** Spring Data JPA (Hibernate)
-* **Banco de Dados:** PostgreSQL (recomendado para lidar com tipos de data/hora complexos)
+* **Banco de Dados:** MySQL / PostgreSQL
 * **Documentação:** Springdoc OpenAPI (Swagger UI)
-* **Validação:** Jakarta Bean Validation (para CPF, e-mail e datas)
+
+**Frontend:**
+* **Biblioteca:** React (com Vite)
+* **Estilização:** Tailwind CSS (Design SaaS Moderno, Glassmorphism)
+* **Integração:** Axios / Fetch API
 
 ---
 
-## Testes da API
-
-Para validar as regras de negócio e testar a comunicação com a camada de serviço através dos seus *Controllers*, o uso do Postman é uma excelente abordagem. Ele facilitará a submissão de requisições de agendamento e o diagnóstico rápido de erros do servidor (como retornos 500 ou requisições inválidas) quando a lógica de validação for acionada. 
-
----
-
-## Desafios e Aprendizados
-
-* **Lógica de Agendamento:** Criar métodos de serviço que consultem o banco de dados para verificar sobreposições de horários antes de salvar um novo agendamento.
-* **Relacionamentos Many-to-Many:** Gerenciar a relação entre Médicos e Especialidades de forma eficiente.
-* **Tratamento de Exceções Customizadas:** Criar exceções como `ScheduleConflictException` para retornar erros claros ao usuário na resposta da API.
-* **Testes de Integração:** Escrever testes que tentem forçar agendamentos duplicados para garantir que a lógica de proteção de integridade dos dados está funcionando corretamente.
+## 🗺️ Estrutura de Entidades (Diagrama)
 
 ```mermaid
 classDiagram
@@ -108,11 +104,7 @@ classDiagram
     class DayOfWeek {
         <<enumeration>>
         MONDAY
-        TUESDAY
-        WEDNESDAY
-        THURSDAY
-        FRIDAY
-        SATURDAY
+        ...
         SUNDAY
     }
 
@@ -120,4 +112,3 @@ classDiagram
     Doctor "1" --> "*" Appointment : performs
     Doctor "*" --> "*" Specialty : has
     Doctor "1" --> "*" DoctorSchedule : defines
-```
