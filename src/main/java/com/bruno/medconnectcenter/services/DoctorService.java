@@ -80,7 +80,7 @@ public class DoctorService {
     }
 
     private DoctorResponseDTO toResponseDto(Doctor doctor){
-       return new DoctorResponseDTO(doctor.getId(), doctor.getName(), doctor.getCrm());
+       return new DoctorResponseDTO(doctor.getId(), doctor.getName(), doctor.getCrm(),doctor.getSpecialtyList().stream().toList());
     }
 
     private DoctorResponseDetailsDTO toDetailsDto(Doctor doctor){

@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface DoctorScheduleRepository extends JpaRepository<DoctorSchedule, Long> {
 
@@ -23,4 +24,6 @@ public interface DoctorScheduleRepository extends JpaRepository<DoctorSchedule, 
             @Param("dayOfWeek") DayOfWeek dayOfWeek,
             @Param("time") LocalTime localTime
     );
+
+    Optional<DoctorSchedule> findByDoctorIdAndDayOfWeek(Long doctorId, DayOfWeek dayOfWeek);
 }

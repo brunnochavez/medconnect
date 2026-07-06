@@ -23,5 +23,4 @@ public record DoctorRequestDTO(
 
         @NotEmpty(message = "O médico deve possuir ao menos uma especialidade.")
         Set<Long> specialtyIds
-) {
-}
+){}

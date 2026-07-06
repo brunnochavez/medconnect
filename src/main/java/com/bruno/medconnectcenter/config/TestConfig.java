@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Arrays;
 
@@ -19,6 +20,7 @@ public class TestConfig implements CommandLineRunner {
     private final DoctorRepository doctorRepository;
     private final SpecialtyRepository specialtyRepository;
     private final DoctorScheduleRepository doctorScheduleRepository;
+    private final AppointmentRepository appointmentRepository; // Injetado para popular as consultas
 
     @Override
     public void run(String... args) throws Exception {
@@ -35,7 +37,7 @@ public class TestConfig implements CommandLineRunner {
         specialtyRepository.saveAll(Arrays.asList(sp1, sp2, sp3, sp4, sp5));
 
         // =========================================================================
-        // 2. POPULANDO PACIENTES (Mais registros para testar paginação)
+        // 2. POPULANDO PACIENTES
         // =========================================================================
         Patient p1 = new Patient();
         p1.setName("Carlos Almeida"); p1.setCpf("11122233344");
@@ -65,64 +67,53 @@ public class TestConfig implements CommandLineRunner {
         patientRepository.saveAll(Arrays.asList(p1, p2, p3, p4, p5));
 
         // =========================================================================
-        // 3. POPULANDO MÉDICOS (Mais médicos e especialidades variadas)
+        // 3. POPULANDO MÉDICOS
         // =========================================================================
         Doctor d1 = new Doctor();
         d1.setName("Dra. Ana Silva"); d1.setCrm("12345-SP");
         d1.setPhone("11988887777"); d1.setEmail("ana@email.com");
-        d1.getSpecialtyList().add(sp1); d1.getSpecialtyList().add(sp2); // Cardio e Pediatria
+        d1.getSpecialtyList().add(sp1); d1.getSpecialtyList().add(sp2);
 
         Doctor d2 = new Doctor();
         d2.setName("Dr. João Souza"); d2.setCrm("54321-RJ");
         d2.setPhone("21977776666"); d2.setEmail("joao@email.com");
-        d2.getSpecialtyList().add(sp3); // Ortopedia
+        d2.getSpecialtyList().add(sp3);
 
         Doctor d3 = new Doctor();
         d3.setName("Dr. Marcos Reus"); d3.setCrm("98765-MG");
         d3.setPhone("31966664444"); d3.setEmail("marcos.reus@email.com");
-        d3.getSpecialtyList().add(sp4); // Dermatologia
+        d3.getSpecialtyList().add(sp4);
 
         Doctor d4 = new Doctor();
         d4.setName("Dra. Camila Pitanga"); d4.setCrm("67890-ES");
         d4.setPhone("27955553333"); d4.setEmail("camila.pitanga@email.com");
-        d4.getSpecialtyList().add(sp5); // Ginecologia
+        d4.getSpecialtyList().add(sp5);
 
         doctorRepository.saveAll(Arrays.asList(d1, d2, d3, d4));
 
         // =========================================================================
         // 4. POPULANDO AS GRADES DE HORÁRIO (DoctorSchedule)
         // =========================================================================
-
-        // --- Grade da Dra. Ana Silva ---
-        // Segunda-feira de Manhã (08:00 às 12:00)
         DoctorSchedule schAna1 = new DoctorSchedule();
         schAna1.setDoctor(d1); schAna1.setDayOfWeek(DayOfWeek.MONDAY);
         schAna1.setStartTime(LocalTime.of(8, 0)); schAna1.setEndTime(LocalTime.of(12, 0));
 
-        // Quarta-feira à Tarde (14:00 às 18:00)
         DoctorSchedule schAna2 = new DoctorSchedule();
         schAna2.setDoctor(d1); schAna2.setDayOfWeek(DayOfWeek.WEDNESDAY);
         schAna2.setStartTime(LocalTime.of(14, 0)); schAna2.setEndTime(LocalTime.of(18, 0));
 
-        // --- Grade do Dr. João Souza ---
-        // Terça-feira de Manhã (08:00 às 12:00)
         DoctorSchedule schJoao1 = new DoctorSchedule();
         schJoao1.setDoctor(d2); schJoao1.setDayOfWeek(DayOfWeek.TUESDAY);
         schJoao1.setStartTime(LocalTime.of(8, 0)); schJoao1.setEndTime(LocalTime.of(12, 0));
 
-        // Quinta-feira à Tarde (13:00 às 17:00)
         DoctorSchedule schJoao2 = new DoctorSchedule();
         schJoao2.setDoctor(d2); schJoao2.setDayOfWeek(DayOfWeek.THURSDAY);
         schJoao2.setStartTime(LocalTime.of(13, 0)); schJoao2.setEndTime(LocalTime.of(17, 0));
 
-        // --- Grade do Dr. Marcos Reus ---
-        // Sexta-feira o dia todo (08:00 às 16:00 - Bloco único para simplificar)
         DoctorSchedule schMarcos = new DoctorSchedule();
         schMarcos.setDoctor(d3); schMarcos.setDayOfWeek(DayOfWeek.FRIDAY);
         schMarcos.setStartTime(LocalTime.of(8, 0)); schMarcos.setEndTime(LocalTime.of(16, 0));
 
-        // --- Grade da Dra. Camila Pitanga ---
-        // Segunda a Quinta à Tarde (13:00 às 18:00) - Criando os blocos por laço
         DoctorSchedule schCamilaSeg = new DoctorSchedule();
         schCamilaSeg.setDoctor(d4); schCamilaSeg.setDayOfWeek(DayOfWeek.MONDAY);
         schCamilaSeg.setStartTime(LocalTime.of(13, 0)); schCamilaSeg.setEndTime(LocalTime.of(18, 0));
@@ -134,5 +125,39 @@ public class TestConfig implements CommandLineRunner {
         doctorScheduleRepository.saveAll(Arrays.asList(
                 schAna1, schAna2, schJoao1, schJoao2, schMarcos, schCamilaSeg, schCamilaTer
         ));
+
+        // =========================================================================
+        // 5. POPULANDO AGENDAMENTOS (Para testar a tabela e máquina de estados no Front)
+        // =========================================================================
+
+        // Consulta no Passado -> REALIZADA
+        Appointment app1 = new Appointment();
+        app1.setPatient(p1); app1.setDoctor(d1);
+        app1.setAppointmentDateTime(LocalDateTime.of(2026, 6, 10, 9, 0)); // Data no passado
+        app1.setStatus(AppointmentStatus.REALIZADA);
+        app1.setObservations("Paciente relatou dores no peito. Exames solicitados.");
+
+        // Consulta no Passado -> CANCELADA
+        Appointment app2 = new Appointment();
+        app2.setPatient(p2); app2.setDoctor(d2);
+        app2.setAppointmentDateTime(LocalDateTime.of(2026, 6, 15, 10, 0)); // Data no passado
+        app2.setStatus(AppointmentStatus.CANCELADA);
+        app2.setObservations("Paciente ligou para cancelar por imprevisto familiar.");
+
+        // Consulta no Futuro -> AGENDADA
+        Appointment app3 = new Appointment();
+        app3.setPatient(p3); app3.setDoctor(d3);
+        app3.setAppointmentDateTime(LocalDateTime.of(2026, 8, 20, 14, 0)); // Data no futuro
+        app3.setStatus(AppointmentStatus.AGENDADA);
+        app3.setObservations("Primeira consulta dermatológica.");
+
+        // Consulta no Futuro Próximo -> CONFIRMADA
+        Appointment app4 = new Appointment();
+        app4.setPatient(p4); app4.setDoctor(d4);
+        app4.setAppointmentDateTime(LocalDateTime.of(2026, 8, 5, 15, 30)); // Data no futuro
+        app4.setStatus(AppointmentStatus.CONFIRMADA);
+        app4.setObservations("Exames de rotina anual.");
+
+        appointmentRepository.saveAll(Arrays.asList(app1, app2, app3, app4));
     }
 }

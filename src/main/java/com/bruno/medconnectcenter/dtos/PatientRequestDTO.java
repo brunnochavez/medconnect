@@ -1,6 +1,7 @@
 package com.bruno.medconnectcenter.dtos;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import org.hibernate.validator.constraints.br.CPF;
 import java.time.LocalDate;
@@ -14,7 +15,7 @@ public record PatientRequestDTO(
         @CPF(message = "CPF informado é inválido!")
         String cpf,
 
-        @NotBlank(message = "Data de nascimento obrigatória.")
+        @NotNull(message = "Data de nascimento obrigatória.")
         @Past(message = "Data de nascimento não pode estar no futuro.")
         LocalDate birthDate,
 
