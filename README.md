@@ -52,6 +52,13 @@ O foco central da arquitetura de backend deste projeto é a **consistência de d
 
 ---
 
+Próximos Passos (Work in Progress)
+[ ] Tratamento Global de Exceções (@RestControllerAdvice): Interceptar as regras de negócio barradas (ex: IllegalArgumentException) e falhas de validação dos DTOs para retornar payloads JSON limpos, padronizados e com status HTTP adequados (400 Bad Request, 404 Not Found).
+
+[ ] Segurança com JWT: Implementar Spring Security para controle de acesso (Login de Recepcionistas vs. Portal do Paciente).
+
+[ ] Testes Automatizados: Cobertura de testes unitários com JUnit 5 e Mockito na camada de Service.
+
 ## 🗺️ Estrutura de Entidades (Diagrama)
 
 ```mermaid
