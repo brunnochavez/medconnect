@@ -153,19 +153,17 @@ public class AppointmentService {
         return toResponseDto(appointment);
     }
 
-    public List<String> findAvailableSlots(Long doctorId, LocalDate date){
+    public List<String> findAvailableSlots(Long doctorId, Long specialtyId, LocalDate date){
 
         DayOfWeek dayOfWeek = date.getDayOfWeek();
 
-        Optional<DoctorSchedule> scheduleOptions = doctorScheduleRepository.findByDoctorIdAndDayOfWeek(doctorId, dayOfWeek);
+        // 🟢 Agora filtramos a lista de turnos não só pelo dia, mas pela especialidade desejada!
+        List<DoctorSchedule> dailySchedules = doctorScheduleRepository
+                .findByDoctorIdAndSpecialtyIdAndDayOfWeek(doctorId, specialtyId, dayOfWeek);
 
-        if(scheduleOptions.isEmpty()){
-            return new ArrayList<>();
+        if(dailySchedules.isEmpty()){
+            return new ArrayList<>(); // Não atende nesta especialidade neste dia
         }
-
-        DoctorSchedule schedule = scheduleOptions.get();
-        LocalTime startTime = schedule.getStartTime();
-        LocalTime endTime = schedule.getEndTime();
 
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.plusDays(1).atStartOfDay();
@@ -177,18 +175,22 @@ public class AppointmentService {
                 .toList();
 
         List<String> availableSlots = new ArrayList<>();
-        LocalTime currentSlot = startTime;
 
-        while (currentSlot.isBefore(endTime)) {
-            if (!busyTimes.contains(currentSlot)) {
-                availableSlots.add(currentSlot.toString());
+        for (DoctorSchedule schedule : dailySchedules) {
+            LocalTime currentSlot = schedule.getStartTime();
+            LocalTime endTime = schedule.getEndTime();
+
+            while (currentSlot.isBefore(endTime)) {
+                if (!busyTimes.contains(currentSlot)) {
+                    availableSlots.add(currentSlot.toString());
+                }
+                currentSlot = currentSlot.plusMinutes(15);
             }
-            currentSlot = currentSlot.plusMinutes(15);
         }
 
-        return availableSlots;
-
+        return availableSlots.stream().sorted().toList();
     }
+
 
     private AppointmentResponseDTO toResponseDto(Appointment appointment) {
         return new AppointmentResponseDTO(

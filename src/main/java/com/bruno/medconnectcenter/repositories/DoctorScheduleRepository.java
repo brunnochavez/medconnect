@@ -3,7 +3,6 @@ import com.bruno.medconnectcenter.entities.DoctorSchedule;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.List;
@@ -17,13 +16,13 @@ public interface DoctorScheduleRepository extends JpaRepository<DoctorSchedule, 
             "FROM DoctorSchedule s " +
             "WHERE s.doctor.id = :doctorId " +
             "AND s.dayOfWeek = :dayOfWeek " +
-            "AND s.startTime <= :time " +
-            "AND s.endTime > :time")
+            "AND s.startTime <= :localTime " +
+            "AND s.endTime > :localTime")
     boolean existsAvailableSchedule(
             @Param("doctorId") Long doctorId,
             @Param("dayOfWeek") DayOfWeek dayOfWeek,
-            @Param("time") LocalTime localTime
+            @Param("localTime") LocalTime localTime
     );
 
-    Optional<DoctorSchedule> findByDoctorIdAndDayOfWeek(Long doctorId, DayOfWeek dayOfWeek);
+    List<DoctorSchedule> findByDoctorIdAndSpecialtyIdAndDayOfWeek(Long doctorId, Long specialtyId, DayOfWeek dayOfWeek);
 }

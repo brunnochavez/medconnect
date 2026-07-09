@@ -7,6 +7,7 @@ public record DoctorScheduleResponseDTO(
         DayOfWeek dayOfWeek,
         LocalTime startTime,
         LocalTime endTime,
-        Long doctorId
+        Long doctorId,
+        Long specialtyId
 ) {
 }

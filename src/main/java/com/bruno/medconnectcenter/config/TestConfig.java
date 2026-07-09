@@ -95,31 +95,38 @@ public class TestConfig implements CommandLineRunner {
         // 4. POPULANDO AS GRADES DE HORÁRIO (DoctorSchedule)
         // =========================================================================
         DoctorSchedule schAna1 = new DoctorSchedule();
-        schAna1.setDoctor(d1); schAna1.setDayOfWeek(DayOfWeek.MONDAY);
+        schAna1.setDoctor(d1); schAna1.setSpecialty(sp1); // 🟢 ADICIONADO
+        schAna1.setDayOfWeek(DayOfWeek.MONDAY);
         schAna1.setStartTime(LocalTime.of(8, 0)); schAna1.setEndTime(LocalTime.of(12, 0));
 
         DoctorSchedule schAna2 = new DoctorSchedule();
-        schAna2.setDoctor(d1); schAna2.setDayOfWeek(DayOfWeek.WEDNESDAY);
+        schAna2.setDoctor(d1); schAna2.setSpecialty(sp2); // 🟢 ADICIONADO (Dra. Ana atende Cardiologia e Pediatria)
+        schAna2.setDayOfWeek(DayOfWeek.WEDNESDAY);
         schAna2.setStartTime(LocalTime.of(14, 0)); schAna2.setEndTime(LocalTime.of(18, 0));
 
         DoctorSchedule schJoao1 = new DoctorSchedule();
-        schJoao1.setDoctor(d2); schJoao1.setDayOfWeek(DayOfWeek.TUESDAY);
+        schJoao1.setDoctor(d2); schJoao1.setSpecialty(sp3); // 🟢 ADICIONADO
+        schJoao1.setDayOfWeek(DayOfWeek.TUESDAY);
         schJoao1.setStartTime(LocalTime.of(8, 0)); schJoao1.setEndTime(LocalTime.of(12, 0));
 
         DoctorSchedule schJoao2 = new DoctorSchedule();
-        schJoao2.setDoctor(d2); schJoao2.setDayOfWeek(DayOfWeek.THURSDAY);
+        schJoao2.setDoctor(d2); schJoao2.setSpecialty(sp3); // 🟢 ADICIONADO
+        schJoao2.setDayOfWeek(DayOfWeek.THURSDAY);
         schJoao2.setStartTime(LocalTime.of(13, 0)); schJoao2.setEndTime(LocalTime.of(17, 0));
 
         DoctorSchedule schMarcos = new DoctorSchedule();
-        schMarcos.setDoctor(d3); schMarcos.setDayOfWeek(DayOfWeek.FRIDAY);
+        schMarcos.setDoctor(d3); schMarcos.setSpecialty(sp4); // 🟢 ADICIONADO
+        schMarcos.setDayOfWeek(DayOfWeek.FRIDAY);
         schMarcos.setStartTime(LocalTime.of(8, 0)); schMarcos.setEndTime(LocalTime.of(16, 0));
 
         DoctorSchedule schCamilaSeg = new DoctorSchedule();
-        schCamilaSeg.setDoctor(d4); schCamilaSeg.setDayOfWeek(DayOfWeek.MONDAY);
+        schCamilaSeg.setDoctor(d4); schCamilaSeg.setSpecialty(sp5); // 🟢 ADICIONADO
+        schCamilaSeg.setDayOfWeek(DayOfWeek.MONDAY);
         schCamilaSeg.setStartTime(LocalTime.of(13, 0)); schCamilaSeg.setEndTime(LocalTime.of(18, 0));
 
         DoctorSchedule schCamilaTer = new DoctorSchedule();
-        schCamilaTer.setDoctor(d4); schCamilaTer.setDayOfWeek(DayOfWeek.TUESDAY);
+        schCamilaTer.setDoctor(d4); schCamilaTer.setSpecialty(sp5); // 🟢 ADICIONADO
+        schCamilaTer.setDayOfWeek(DayOfWeek.TUESDAY);
         schCamilaTer.setStartTime(LocalTime.of(13, 0)); schCamilaTer.setEndTime(LocalTime.of(18, 0));
 
         doctorScheduleRepository.saveAll(Arrays.asList(

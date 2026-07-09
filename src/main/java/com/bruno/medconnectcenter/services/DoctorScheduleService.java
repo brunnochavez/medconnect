@@ -3,8 +3,10 @@ import com.bruno.medconnectcenter.dtos.DoctorScheduleRequestDTO;
 import com.bruno.medconnectcenter.dtos.DoctorScheduleResponseDTO;
 import com.bruno.medconnectcenter.entities.Doctor;
 import com.bruno.medconnectcenter.entities.DoctorSchedule;
+import com.bruno.medconnectcenter.entities.Specialty;
 import com.bruno.medconnectcenter.repositories.DoctorRepository;
 import com.bruno.medconnectcenter.repositories.DoctorScheduleRepository;
+import com.bruno.medconnectcenter.repositories.SpecialtyRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ public class DoctorScheduleService {
 
     private final DoctorScheduleRepository doctorScheduleRepository;
     private final DoctorRepository doctorRepository;
+    private final SpecialtyRepository specialtyRepository;
 
     @Transactional
     public DoctorScheduleResponseDTO insert(DoctorScheduleRequestDTO dto){
@@ -29,9 +32,19 @@ public class DoctorScheduleService {
 
         try {
             Doctor doctor = doctorRepository.getReferenceById(dto.doctorId());
+            Specialty specialty = specialtyRepository.getReferenceById(dto.specialtyId()); // Busca a especialidade
+
+            // 🟢 REGRA DE NEGÓCIO: O médico realmente tem essa especialidade no currículo?
+            boolean hasSpecialty = doctor.getSpecialtyList().stream()
+                    .anyMatch(spec -> spec.getId().equals(dto.specialtyId()));
+
+            if(!hasSpecialty){
+                throw new IllegalArgumentException("O médico selecionado não possui a especialidade informada!");
+            }
 
             DoctorSchedule doctorSchedule = new DoctorSchedule();
             doctorSchedule.setDoctor(doctor);
+            doctorSchedule.setSpecialty(specialty); // Seta a especialidade
             doctorSchedule.setDayOfWeek(dto.dayOfWeek());
             doctorSchedule.setStartTime(dto.startTime());
             doctorSchedule.setEndTime(dto.endTime());
@@ -40,7 +53,7 @@ public class DoctorScheduleService {
             return toResponseDto(doctorSchedule);
 
         }catch (EntityNotFoundException e){
-            throw new EntityNotFoundException("Médico não encontrado!");
+            throw new EntityNotFoundException("Médico ou Especialidade não encontrados!");
         }
     }
 
@@ -73,7 +86,8 @@ public class DoctorScheduleService {
                 doctorSchedule.getDayOfWeek(),
                 doctorSchedule.getStartTime(),
                 doctorSchedule.getEndTime(),
-                doctorSchedule.getDoctor().getId()
+                doctorSchedule.getDoctor().getId(),
+                doctorSchedule.getSpecialty().getId()
         );
     }
 }
