@@ -35,6 +35,7 @@ public class PatientController {
         Page<PatientResponseDTO> listPatients = patientService.findAll(pageable);
         return ResponseEntity.ok(listPatients);
     }
+
     @PostMapping
     @Operation(summary = "Cadastrar um paciente")
     public ResponseEntity<PatientResponseDTO> insert(@Valid @RequestBody PatientRequestDTO dto){

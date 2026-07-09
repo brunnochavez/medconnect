@@ -8,14 +8,13 @@ import com.bruno.medconnectcenter.repositories.DoctorRepository;
 import com.bruno.medconnectcenter.repositories.SpecialtyRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -66,17 +65,14 @@ public class DoctorService {
         }
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
+    @Transactional
     public void deleteById(Long id){
-        if(!doctorRepository.existsById(id)){
-            throw new EntityNotFoundException("Médico não encontrado!");
-        }
-        try {
-            doctorRepository.deleteById(id);
-        }
-        catch (DataIntegrityViolationException e){
-            throw new DataIntegrityViolationException("Não foi possível excluir o cadastro do médico!");
-        }
+        Doctor doctor = doctorRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("Médico não encontrado!")
+        );
+
+        doctor.setActive(false);
+        doctorRepository.save(doctor);
     }
 
     private DoctorResponseDTO toResponseDto(Doctor doctor){

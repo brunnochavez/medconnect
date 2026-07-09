@@ -1,11 +1,10 @@
 package com.bruno.medconnectcenter.config;
-
 import com.bruno.medconnectcenter.entities.*;
 import com.bruno.medconnectcenter.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
-
+import org.springframework.context.annotation.Profile;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,6 +13,7 @@ import java.util.Arrays;
 
 @Configuration
 @RequiredArgsConstructor
+@Profile("test")
 public class TestConfig implements CommandLineRunner {
 
     private final PatientRepository patientRepository;

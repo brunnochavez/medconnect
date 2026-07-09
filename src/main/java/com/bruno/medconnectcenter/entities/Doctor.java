@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -11,9 +12,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "tb_doctors")
-@Getter
-@Setter
-@NoArgsConstructor
+@SQLRestriction("active = true")
+@Getter @Setter @NoArgsConstructor
 public class Doctor {
 
     @Id
@@ -37,6 +37,8 @@ public class Doctor {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    private boolean active = true;
 
     @ManyToMany
     @JoinTable(name = "doctor_specialty_tb",

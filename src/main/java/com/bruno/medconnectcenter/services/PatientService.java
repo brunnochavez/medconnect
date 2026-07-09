@@ -6,11 +6,9 @@ import com.bruno.medconnectcenter.entities.Patient;
 import com.bruno.medconnectcenter.repositories.PatientRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -54,18 +52,14 @@ public class PatientService {
         }
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
+    @Transactional
     public void deleteById(Long id){
-        if(!patientRepository.existsById(id)){
-            throw new EntityNotFoundException("Paciente não encontrado!");
-        }
+        Patient patient = patientRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("Paciente não encontrado")
+        );
 
-        try {
-            patientRepository.deleteById(id);
-        }
-        catch (DataIntegrityViolationException e){
-            throw new DataIntegrityViolationException("Não foi possível excluir o cadastro do paciente!");
-        }
+        patient.setActive(false);
+        patientRepository.save(patient);
     }
 
     private PatientResponseDTO toResponseDto(Patient p){
