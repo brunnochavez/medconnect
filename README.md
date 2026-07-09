@@ -6,7 +6,7 @@ O meu maior desafio (e foco) nesse projeto não foi só fazer um CRUD simples, m
 
 ---
 
-## 🚀 O que o projeto faz de mais legal?
+## 🚀 O que o projeto faz?
 
 * **Agendamento Inteligente:** Em vez de deixar o usuário digitar qualquer data e dar erro, o back-end calcula e devolve para o front-end apenas os botõezinhos com os horários que estão *realmente* livres.
 * **Bloqueio de Conflitos:** O sistema não deixa duas pessoas marcarem com o mesmo médico na mesma hora (e nem o mesmo paciente marcar duas consultas no mesmo horário).
