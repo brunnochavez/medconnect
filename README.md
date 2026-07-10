@@ -1,54 +1,37 @@
-# MedConnect - Sistema de Clínica Médica 🩺
+# MedConnectCenter API 🩺
 
-Olá! Esse é o meu projeto de portfólio: um sistema fullstack (Spring Boot + React) para gerenciar agendamentos de uma clínica médica. 
+> Uma API RESTful robusta para gestão de agendamentos de uma clínica médica, desenvolvida com foco em integridade de dados, prevenção de concorrência e regras de negócio do mundo real.
 
-O meu maior desafio (e foco) nesse projeto não foi só fazer um CRUD simples, mas sim construir uma **lógica de agendamento que realmente funcione na vida real**, sem deixar os horários entrarem em conflito!
+## 💻 Sobre o Projeto
 
----
+O MedConnectCenter não é apenas um simples cadastro (CRUD). Este projeto foi desenhado para resolver problemas reais de uma clínica médica, como sobreposição de horários e integridade do histórico de pacientes. A API gerencia o ciclo de vida completo de uma consulta médica (Agendada ➡️ Confirmada ➡️ Realizada / Cancelada), validando regras estritas de horário e disponibilidade.
 
-## 🚀 O que o projeto faz?
+## 🛠️ Tecnologias Utilizadas
 
-* **Agendamento Inteligente:** Em vez de deixar o usuário digitar qualquer data e dar erro, o back-end calcula e devolve para o front-end apenas os botõezinhos com os horários que estão *realmente* livres.
-* **Bloqueio de Conflitos:** O sistema não deixa duas pessoas marcarem com o mesmo médico na mesma hora (e nem o mesmo paciente marcar duas consultas no mesmo horário).
-* **Horários cravados:** Fiz uma lógica no Java que obriga as consultas a durarem blocos exatos de 15 em 15 minutos. Nada de agendamentos quebrados tipo "08:03".
-* **Banco já populado:** Configurei o Spring para já rodar inserindo médicos, pacientes e algumas consultas no banco de dados. Assim fica muito mais fácil de testar a aplicação!
+* **Java 21:** Utilização de recursos modernos como `Records` para DTOs, garantindo imutabilidade.
+* **Spring Boot 3:** Framework principal da aplicação.
+* **Spring Data JPA & Hibernate:** Mapeamento Objeto-Relacional (ORM) e persistência de dados.
+* **MySQL:** Banco de dados relacional (via Oracle JDBC / H2 para testes).
+* **Spring Validation:** Validação de dados de entrada na camada de controle.
+* **Swagger (Springdoc OpenAPI):** Documentação interativa da API.
+* **Postman:** Coleção de requisições exportada para facilitar testes locais de endpoints e diagnóstico de *status codes*.
 
----
+## 🏗️ Decisões Arquiteturais
 
-## ⚙️ Funcionalidades
+Durante o desenvolvimento, algumas decisões arquiteturais importantes foram tomadas para garantir que o sistema se comportasse de forma previsível em um ambiente de produção (múltiplos usuários simultâneos):
 
-* **Cadastro:** Dá para salvar e listar Pacientes (com CPF) e Médicos (com CRM e Especialidades).
-* **Grade do Médico:** Cada médico tem seus dias e horários de trabalho configurados (ex: Dra. Ana só atende segunda e quarta de manhã).
-* **Controle de Status:** A consulta nasce como `AGENDADA`, pode mudar para `CONFIRMADA`, e depois ir para `REALIZADA` ou `CANCELADA`.
+* **Prevenção de *Race Conditions* (Condição de Corrida):**
+  * **Lock Otimista (`@Version`):** Implementado no Hibernate para impedir que edições simultâneas corrompam o estado da consulta (ex: paciente e secretária tentando cancelar e confirmar a mesma consulta no mesmo exato milissegundo).
+  * **Unique Constraints (Catraca do Banco):** Índices compostos no banco de dados para garantir matematicamente que dois pacientes não consigam reservar o mesmo médico, no mesmo dia e horário.
+* **Soft Delete Estruturado:** Exclusão lógica de médicos e pacientes sem o uso de filtros globais de invisibilidade. Isso garante que pacientes antigos não percam seus relatórios e históricos de consultas com médicos que já foram inativados ou desligados da clínica.
+* **Tratamento Global de Exceções (`@RestControllerAdvice`):** Padronização das respostas de erro da API. Em vez de expor as *stack traces* e *queries* SQL (evitando *Information Disclosure*), a API devolve mensagens amigáveis e *Status Codes* HTTP corretos (como `409 Conflict` para choques de agenda, `422 Unprocessable Entity` ou `404 Not Found`).
+* **Padrão DTO (Data Transfer Object):** Separação estrita entre as entidades de banco de dados e os dados expostos na API, blindando a estrutura interna (como no relacionamento entre Médico, Paciente e Especialidades).
 
----
+## 🚀 Como Executar o Projeto
 
-## 💻 Tecnologias que utilizei
-
-**Back-end:**
-* Java 17 + Spring Boot 3
-* Spring Data JPA (Hibernate)
-* Banco de Dados: MySQL (e H2 para testes)
-* Validações com Jakarta Validation (`@NotNull`, `@NotBlank`)
-* Documentação automática com Swagger (Springdoc)
-
-**Front-end:**
-* React.js (com Vite)
-* Tailwind CSS para deixar a interface bonita e moderna
-* Axios para fazer as requisições para a API
-
----
-
-O que estou fazendo agora (Próximos Passos)
-Como todo projeto de estudos, ele está sempre evoluindo. Minhas próximas tarefas são:
-
-[ ] Melhorar os erros da API: Criar uma classe global de tratamento de exceções (usando @RestControllerAdvice) para trocar aqueles erros 500 feios do Java por mensagens JSON bonitinhas (ex: Erro 400 avisando que o horário está lotado).
-
-[ ] Segurança (Login): Colocar Spring Security e JWT para separar quem é paciente de quem é recepcionista.
-
-[ ] Testes: Escrever teste
-
-## 🗺️ Como o Banco de Dados foi pensado
+1. Clone este repositório:
+   ```bash
+   git clone [https://github.com/brunnochavez/medconnect.git](https://github.com/brunnochavez/medconnect.git)
 
 Fiz esse diagrama para mostrar como as tabelas se conversam:
 
