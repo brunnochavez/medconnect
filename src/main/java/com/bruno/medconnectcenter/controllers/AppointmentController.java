@@ -70,7 +70,7 @@ public class AppointmentController {
     @GetMapping(value = "/available-slots")
     public ResponseEntity<List<String>> getAvailableSlots(
             @RequestParam Long doctorId,
-            @RequestParam Long specialtyId, // 🟢 RECEBE DA URL
+            @RequestParam Long specialtyId,
             @RequestParam String date) {
 
         LocalDate localDate = LocalDate.parse(date);

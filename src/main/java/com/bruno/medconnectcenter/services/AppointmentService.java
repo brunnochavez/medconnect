@@ -61,14 +61,17 @@ public class AppointmentService {
             throw new IllegalArgumentException("Segundos e milissegundos não são permitidos");
         }
 
-        boolean doctorConflict = appointmentRepository.existsByDoctorIdAndAppointmentDateTimeAndStatus(
-                dto.doctorId(),
-                dto.appointmentDateTime(),
-                AppointmentStatus.AGENDADA
+        List<AppointmentStatus> ocupado = List.of(
+                AppointmentStatus.AGENDADA,
+                AppointmentStatus.CONFIRMADA
         );
 
-        if(doctorConflict){
-            throw new IllegalArgumentException("Médico já possui um agendamento para o horário informado!");
+        if (appointmentRepository.existsByDoctorIdAndAppointmentDateTimeAndStatusIn(
+                dto.doctorId(),
+                dto.appointmentDateTime(),
+                ocupado)) {
+
+            throw new IllegalArgumentException("O médico já possui uma consulta marcada para este horário.");
         }
 
         boolean patientConflict = appointmentRepository.existsByPatientIdAndAppointmentDateTimeAndStatus(

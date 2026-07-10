@@ -11,6 +11,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,11 +85,25 @@ public class GlobalExceptionHandler {
         StandardErrorDTO error = new StandardErrorDTO(
                 Instant.now(),
                 HttpStatus.CONFLICT.value(),
-                "Conflito de atualizaçào",
+                "Conflito de atualização",
                 "Esta consulta foi modificada por outro usuário. Atualize a página e tente novamente",
                 request.getRequestURI()
         );
 
         return ResponseEntity.status(409).body(error);
+    }
+
+    @ExceptionHandler(DateTimeParseException.class)
+    public ResponseEntity<StandardErrorDTO> dateTimeParse(DateTimeParseException e, HttpServletRequest request){
+
+        StandardErrorDTO error = new StandardErrorDTO(
+                Instant.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Formato de data é inválido.",
+                "Por favor, envie no padrão Ano-Mês-Dia (AAAA-MM-DD).",
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(400).body(error);
     }
 }
