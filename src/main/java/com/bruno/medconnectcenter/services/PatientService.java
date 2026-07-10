@@ -27,7 +27,7 @@ public class PatientService {
 
     @Transactional(readOnly = true)
     public Page<PatientResponseDTO> findAll(Pageable pageable){
-        Page<Patient> listPatient = patientRepository.findAll(pageable);
+        Page<Patient> listPatient = patientRepository.findAllByActiveTrue(pageable);
         return listPatient.map(this::toResponseDto);
     }
 
@@ -41,15 +41,12 @@ public class PatientService {
 
     @Transactional
     public PatientResponseDTO update(Long id, PatientRequestDTO dto){
-        try{
-            Patient patient = patientRepository.getReferenceById(id);
-            dtoToEntity(dto, patient);
-            patient = patientRepository.save(patient);
-            return toResponseDto(patient);
-        }
-        catch (EntityNotFoundException e){
-            throw new EntityNotFoundException("Não foi possível atualizar o cadastro do paciente");
-        }
+        Patient patient = patientRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("Paciente não encontrado!")
+        );
+        dtoToEntity(dto, patient);
+        patient = patientRepository.save(patient);
+        return toResponseDto(patient);
     }
 
     @Transactional

@@ -144,10 +144,10 @@ public class AppointmentService {
     public AppointmentResponseDTO carriedOut(Long id){
         Appointment appointment = verify(id);
 
-        if(appointment.getStatus() != AppointmentStatus.REALIZADA){
-            throw new IllegalArgumentException("A consulta foi realizada.");
+        if(appointment.getStatus() != AppointmentStatus.CONFIRMADA){
+            throw new IllegalArgumentException("Apenas consulta com Status CONFIRMADA, pode ser marcado como " +
+                    "REALIZADA!");
         }
-
         appointment.setStatus(AppointmentStatus.REALIZADA);
         appointment = appointmentRepository.save(appointment);
         return toResponseDto(appointment);

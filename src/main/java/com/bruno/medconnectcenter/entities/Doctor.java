@@ -12,7 +12,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "tb_doctors")
-@SQLRestriction("active = true")
+
 @Getter @Setter @NoArgsConstructor
 public class Doctor {
 

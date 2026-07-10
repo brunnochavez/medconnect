@@ -1,6 +1,9 @@
 package com.bruno.medconnectcenter.exceptions;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import org.hibernate.boot.jaxb.mapping.internal.OptimisticLockStyleMarshalling;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -59,5 +62,33 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.status(404).body(error);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<StandardErrorDTO> dataIntegrityViolation(DataIntegrityViolationException e, HttpServletRequest request){
+
+        StandardErrorDTO error = new StandardErrorDTO(
+                Instant.now(),
+                HttpStatus.CONFLICT.value(),
+                "Conflito de agendamento!",
+                "Horário indisponível, por favor, escolha outro horário",
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(409).body(error);
+    }
+
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    public ResponseEntity<StandardErrorDTO> optimisticLockingFailure(OptimisticLockingFailureException e, HttpServletRequest request){
+
+        StandardErrorDTO error = new StandardErrorDTO(
+                Instant.now(),
+                HttpStatus.CONFLICT.value(),
+                "Conflito de atualizaçào",
+                "Esta consulta foi modificada por outro usuário. Atualize a página e tente novamente",
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(409).body(error);
     }
 }

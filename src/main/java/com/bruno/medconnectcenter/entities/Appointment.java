@@ -8,7 +8,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "tb_appointments")
+@Table(name = "tb_appointments", uniqueConstraints = {@UniqueConstraint(columnNames = {"doctor_id", "appointment_date_time"})})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -37,4 +37,6 @@ public class Appointment {
     @JoinColumn(name = "doctor_id")
     private Doctor doctor;
 
+    @Version
+    private Long version;
 }

@@ -42,15 +42,12 @@ public class SpecialtyService {
 
     @Transactional
     public SpecialtyResponseDTO update(Long id, SpecialtyRequestDTO dto){
-        try {
-            Specialty specialty = specialtyRepository.getReferenceById(id);
-            specialty.setName(dto.name());
-            specialty = specialtyRepository.save(specialty);
-            return new SpecialtyResponseDTO(specialty.getId(), specialty.getName());
-        }
-        catch (EntityNotFoundException e){
-            throw new EntityNotFoundException("Especialidade não encontrada!");
-        }
+        Specialty specialty = specialtyRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("Especialidade não encontrada!")
+        );
+        specialty.setName(dto.name());
+        specialty = specialtyRepository.save(specialty);
+        return new SpecialtyResponseDTO(specialty.getId(), specialty.getName());
     }
 
     @Transactional(propagation = Propagation.SUPPORTS)

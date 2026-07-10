@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "tb_patients")
-@SQLRestriction("active = true")
+
 @Getter @Setter @NoArgsConstructor
 public class Patient {
 

@@ -12,6 +12,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -33,7 +35,7 @@ public class DoctorService {
 
     @Transactional(readOnly = true)
     public Page<DoctorResponseDTO> findAll(Pageable pageable){
-        Page<Doctor> listDoctors = doctorRepository.findAll(pageable);
+        Page<Doctor> listDoctors = doctorRepository.findAllByActiveTrue(pageable);
         return listDoctors.map(this::toResponseDto);
     }
 
@@ -50,19 +52,16 @@ public class DoctorService {
 
     @Transactional
     public DoctorResponseDTO update(Long id, DoctorRequestDTO dto){
-        try {
-            Doctor doctor = doctorRepository.getReferenceById(id);
-            dtoToEntity(dto, doctor);
-            doctor.getSpecialtyList().clear();
-            for(Long specialtyId : dto.specialtyIds()){
-                doctor.getSpecialtyList().add(specialtyRepository.getReferenceById(specialtyId));
-            }
-            doctor = doctorRepository.save(doctor);
-            return toResponseDto(doctor);
+        Doctor doctor = doctorRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("Médico não encontrado!")
+        );
+        dtoToEntity(dto, doctor);
+        doctor.getSpecialtyList().clear();
+        for(Long specialtyId : dto.specialtyIds()){
+            doctor.getSpecialtyList().add(specialtyRepository.getReferenceById(specialtyId));
         }
-        catch (EntityNotFoundException e){
-            throw  new EntityNotFoundException("Médico não encontrado!");
-        }
+        doctor = doctorRepository.save(doctor);
+        return toResponseDto(doctor);
     }
 
     @Transactional
@@ -76,7 +75,16 @@ public class DoctorService {
     }
 
     private DoctorResponseDTO toResponseDto(Doctor doctor){
-       return new DoctorResponseDTO(doctor.getId(), doctor.getName(), doctor.getCrm(),doctor.getSpecialtyList().stream().toList());
+       List<SpecialtyResponseDTO> specialtyList = doctor.getSpecialtyList().stream().map(
+               specialty -> new SpecialtyResponseDTO(specialty.getId(), specialty.getName())
+       ).toList();
+
+        return new DoctorResponseDTO(
+                doctor.getId(),
+                doctor.getName(),
+                doctor.getCrm(),
+                specialtyList
+        );
     }
 
     private DoctorResponseDetailsDTO toDetailsDto(Doctor doctor){
