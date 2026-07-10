@@ -32,9 +32,7 @@ public class DoctorScheduleService {
 
         try {
             Doctor doctor = doctorRepository.getReferenceById(dto.doctorId());
-            Specialty specialty = specialtyRepository.getReferenceById(dto.specialtyId()); // Busca a especialidade
-
-            // 🟢 REGRA DE NEGÓCIO: O médico realmente tem essa especialidade no currículo?
+            Specialty specialty = specialtyRepository.getReferenceById(dto.specialtyId());
             boolean hasSpecialty = doctor.getSpecialtyList().stream()
                     .anyMatch(spec -> spec.getId().equals(dto.specialtyId()));
 

@@ -14,14 +14,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -156,16 +154,14 @@ public class AppointmentService {
         return toResponseDto(appointment);
     }
 
-    public List<String> findAvailableSlots(Long doctorId, Long specialtyId, LocalDate date){
+    public List<String> findAvailableSlots(Long doctorId, Long specialtyId, LocalDate date) {
 
         DayOfWeek dayOfWeek = date.getDayOfWeek();
-
-        // 🟢 Agora filtramos a lista de turnos não só pelo dia, mas pela especialidade desejada!
         List<DoctorSchedule> dailySchedules = doctorScheduleRepository
                 .findByDoctorIdAndSpecialtyIdAndDayOfWeek(doctorId, specialtyId, dayOfWeek);
 
-        if(dailySchedules.isEmpty()){
-            return new ArrayList<>(); // Não atende nesta especialidade neste dia
+        if (dailySchedules.isEmpty()) {
+            return new ArrayList<>();
         }
 
         LocalDateTime startOfDay = date.atStartOfDay();
@@ -190,12 +186,21 @@ public class AppointmentService {
                 currentSlot = currentSlot.plusMinutes(15);
             }
         }
-
         return availableSlots.stream().sorted().toList();
     }
 
+    private Appointment verify (Long id){
+        Appointment appointment = appointmentRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("Consulta não encontrada!")
+        );
 
-    private AppointmentResponseDTO toResponseDto(Appointment appointment) {
+        if (appointment.getStatus() == AppointmentStatus.CANCELADA) {
+            throw new IllegalArgumentException("A consulta encontra-se cancelada!");
+        }
+        return appointment;
+    }
+
+    private AppointmentResponseDTO toResponseDto (Appointment appointment){
         return new AppointmentResponseDTO(
                 appointment.getId(),
                 appointment.getAppointmentDateTime(),
@@ -204,16 +209,5 @@ public class AppointmentService {
                 appointment.getPatient().getId(),
                 appointment.getDoctor().getId()
         );
-    }
-
-    private Appointment verify(Long id){
-        Appointment appointment = appointmentRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Consulta não encontrada!")
-        );
-
-        if(appointment.getStatus() == AppointmentStatus.CANCELADA){
-            throw new IllegalArgumentException("A consulta encontra-se cancelada!");
-        }
-        return appointment;
     }
 }
