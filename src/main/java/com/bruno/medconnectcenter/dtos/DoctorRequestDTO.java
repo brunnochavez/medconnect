@@ -7,7 +7,7 @@ import java.util.Set;
 
 public record DoctorRequestDTO(
 
-        @NotBlank(message = "Nome do paciente é obrigatório.")
+        @NotBlank(message = "Nome do médico é obrigatório.")
         String name,
 
         @NotBlank(message = "CRM é obrigatório.")
@@ -18,7 +18,7 @@ public record DoctorRequestDTO(
         String phone,
 
         @NotBlank(message = "E-mail é obrigatório.")
-        @Email(message = "E-mail informa é inválido.")
+        @Email(message = "E-mail informado é inválido.")
         String email,
 
         @NotEmpty(message = "O médico deve possuir ao menos uma especialidade.")

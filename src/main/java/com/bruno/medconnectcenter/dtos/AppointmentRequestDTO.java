@@ -14,7 +14,7 @@ public record AppointmentRequestDTO(
         @NotNull(message = "Obrigatório informar o paciente.")
         Long patientId,
 
-        @NotNull(message = "Obrigatório informar o médico,")
+        @NotNull(message = "Obrigatório informar o médico.")
         Long doctorId
 ) {
 }

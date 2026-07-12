@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "/schedules")
 @RequiredArgsConstructor
-@Tag(name = "Gerenciamento da grade de horário dos médicos ")
+@Tag(name = "Gerenciamento da grade de horário dos médicos")
 public class DoctorScheduleController {
 
     private final DoctorScheduleService service;
