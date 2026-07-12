@@ -9,9 +9,9 @@ O MedConnectCenter não é apenas um simples cadastro (CRUD). Este projeto foi d
 ## 🛠️ Tecnologias Utilizadas
 
 * **Java 21:** Utilização de recursos modernos como `Records` para DTOs, garantindo imutabilidade.
-* **Spring Boot 3:** Framework principal da aplicação.
+* **Spring Boot 4:** Framework principal da aplicação.
 * **Spring Data JPA & Hibernate:** Mapeamento Objeto-Relacional (ORM) e persistência de dados.
-* **MySQL:** Banco de dados relacional (via Oracle JDBC / H2 para testes).
+* **Oracle Database & H2:** Oracle no perfil `dev` (ambiente similar à produção); H2 em memória no perfil `test`, usado por padrão para rodar e demonstrar o projeto sem configuração externa.
 * **Spring Validation:** Validação de dados de entrada na camada de controle.
 * **Swagger (Springdoc OpenAPI):** Documentação interativa da API.
 * **Postman:** Coleção de requisições exportada para facilitar testes locais de endpoints e diagnóstico de *status codes*.
@@ -31,7 +31,20 @@ Durante o desenvolvimento, algumas decisões arquiteturais importantes foram tom
 
 1. Clone este repositório:
    ```bash
-   git clone [https://github.com/brunnochavez/medconnect.git](https://github.com/brunnochavez/medconnect.git)
+   git clone https://github.com/brunnochavez/medconnect.git
+   cd medconnect
+   ```
+
+2. Rode a aplicação (o Maven Wrapper já vem no projeto, não precisa ter o Maven instalado):
+   ```bash
+   ./mvnw spring-boot:run
+   ```
+
+3. Por padrão, o `application.properties` ativa o perfil `test`, que sobe um banco H2 em memória já populado com médicos, pacientes, especialidades e consultas de exemplo — não é preciso configurar nenhum banco externo para explorar a API:
+   - **Swagger UI:** http://localhost:8080/swagger-ui.html
+   - **Console do H2:** http://localhost:8080/h2-console (JDBC URL `jdbc:h2:mem:medconnect`, usuário `sa`, sem senha)
+
+4. Para rodar contra um Oracle local em vez do H2, suba com o perfil `dev` (`--spring.profiles.active=dev`) e, se quiser, sobrescreva as credenciais padrão pelas variáveis de ambiente `DB_USERNAME` e `DB_PASSWORD`.
 
 Fiz esse diagrama para mostrar como as tabelas se conversam:
 

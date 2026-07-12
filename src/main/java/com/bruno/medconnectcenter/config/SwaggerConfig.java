@@ -24,7 +24,7 @@ public class SwaggerConfig {
                                 * **Horários Cravados:** Validação rigorosa para consultas em blocos exatos de 15 em 15 minutos (sem agendamentos "quebrados").
                                 * **Máquina de Estados:** Fluxo de vida da consulta (AGENDADA ➡️ CONFIRMADA ➡️ REALIZADA / CANCELADA).
                                 
-                                Desenvolvido com **Java 17, Spring Boot 3 e MySQL**.
+                                Desenvolvido com **Java 21, Spring Boot 4 e Oracle Database** (H2 em memória no perfil de testes).
                                 """)
                         .contact(new Contact()
                                 .name("Bruno Oliveira")))
