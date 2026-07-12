@@ -86,11 +86,7 @@
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>2.5.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.oracle.database.jdbc</groupId>
-            <artifactId>ojdbc11</artifactId>
+            <version>3.0.3</version>
         </dependency>
 	</dependencies>
 
@@ -119,6 +115,7 @@
 							<goal>compile</goal>
 						</goals>
 						<configuration>
+							<release>${java.version}</release>
 							<annotationProcessorPaths>
 								<path>
 									<groupId>org.projectlombok</groupId>
@@ -134,6 +131,7 @@
 							<goal>testCompile</goal>
 						</goals>
 						<configuration>
+							<release>${java.version}</release>
 							<annotationProcessorPaths>
 								<path>
 									<groupId>org.projectlombok</groupId>
