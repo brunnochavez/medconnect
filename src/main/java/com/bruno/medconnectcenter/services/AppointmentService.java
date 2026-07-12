@@ -10,6 +10,7 @@ import com.bruno.medconnectcenter.repositories.DoctorScheduleRepository;
 import com.bruno.medconnectcenter.repositories.PatientRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -72,10 +73,10 @@ public class AppointmentService {
             throw new IllegalArgumentException("O médico já possui uma consulta marcada para este horário.");
         }
 
-        boolean patientConflict = appointmentRepository.existsByPatientIdAndAppointmentDateTimeAndStatus(
+        boolean patientConflict = appointmentRepository.existsByPatientIdAndAppointmentDateTimeAndStatusIn(
                 dto.patientId(),
                 dto.appointmentDateTime(),
-                AppointmentStatus.AGENDADA
+                ocupado
         );
 
         if(patientConflict){
@@ -99,14 +100,26 @@ public class AppointmentService {
             throw new IllegalArgumentException("Este médico não atende no dia ou horário informados!");
         }
 
-        Appointment appointment = new Appointment();
+        // Se já existir uma consulta CANCELADA para esse médico neste exato horário, reaproveita a mesma
+        // linha em vez de criar uma nova — assim a constraint única (doctor_id, appointment_date_time)
+        // nunca barra o reagendamento de um horário que foi liberado por cancelamento.
+        Appointment appointment = appointmentRepository
+                .findByDoctorIdAndAppointmentDateTimeAndStatus(dto.doctorId(), dto.appointmentDateTime(), AppointmentStatus.CANCELADA)
+                .orElseGet(Appointment::new);
+
         appointment.setAppointmentDateTime(dto.appointmentDateTime());
         appointment.setObservations(dto.observations());
         appointment.setStatus(AppointmentStatus.AGENDADA);
         appointment.setPatient(patientRepository.getReferenceById(dto.patientId()));
         appointment.setDoctor(doctorRepository.getReferenceById(dto.doctorId()));
 
-        appointment = appointmentRepository.save(appointment);
+        try {
+            appointment = appointmentRepository.save(appointment);
+        } catch (DataIntegrityViolationException e) {
+            // Rede de segurança para concorrência: duas requisições passaram pelas checagens acima
+            // ao mesmo tempo. A constraint única do banco barra a segunda gravação.
+            throw new DataIntegrityViolationException("Horário indisponível, por favor escolha outro horário.");
+        }
 
         return toResponseDto(appointment);
     }
@@ -116,7 +129,7 @@ public class AppointmentService {
         Appointment appointment = verify(id);
 
         if(appointment.getAppointmentDateTime().isBefore(LocalDateTime.now())){
-            throw new IllegalArgumentException("A consulta já foi realizada!");
+            throw new IllegalArgumentException("Não é possível confirmar uma consulta cujo horário já passou!");
         }
 
         if(appointment.getStatus() != AppointmentStatus.AGENDADA){
@@ -133,7 +146,7 @@ public class AppointmentService {
         Appointment appointment = verify(id);
 
         if(appointment.getAppointmentDateTime().isBefore(LocalDateTime.now())){
-            throw new IllegalArgumentException("A consulta já foi realizada!");
+            throw new IllegalArgumentException("Não é possível cancelar uma consulta cujo horário já passou!");
         }
 
         appointment.setStatus(AppointmentStatus.CANCELADA);

@@ -1,8 +1,8 @@
 package com.bruno.medconnectcenter.exceptions;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
-import org.hibernate.boot.jaxb.mapping.internal.OptimisticLockStyleMarshalling;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -71,8 +71,8 @@ public class GlobalExceptionHandler {
         StandardErrorDTO error = new StandardErrorDTO(
                 Instant.now(),
                 HttpStatus.CONFLICT.value(),
-                "Conflito de agendamento!",
-                "Horário indisponível, por favor, escolha outro horário",
+                "Conflito de dados",
+                e.getMessage(),
                 request.getRequestURI()
         );
 
@@ -91,6 +91,20 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.status(409).body(error);
+    }
+
+    @ExceptionHandler(InvalidDataAccessApiUsageException.class)
+    public ResponseEntity<StandardErrorDTO> invalidDataAccessApiUsage(InvalidDataAccessApiUsageException e, HttpServletRequest request){
+
+        StandardErrorDTO error = new StandardErrorDTO(
+                Instant.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Parâmetro de busca inválido",
+                "Verifique o parâmetro de ordenação (sort) enviado — deve ser um campo existente, no formato 'campo,asc' ou 'campo,desc'.",
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(400).body(error);
     }
 
     @ExceptionHandler(DateTimeParseException.class)

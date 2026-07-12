@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
@@ -16,8 +17,16 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             List<AppointmentStatus> status
     );
 
-    boolean existsByPatientIdAndAppointmentDateTimeAndStatus(
+    boolean existsByPatientIdAndAppointmentDateTimeAndStatusIn(
             Long patientId,
+            LocalDateTime dateTime,
+            List<AppointmentStatus> status
+    );
+
+    // Usado para reaproveitar a linha de uma consulta cancelada no mesmo médico/horário,
+    // em vez de tentar inserir uma nova e esbarrar na constraint única (doctor_id, appointment_date_time).
+    Optional<Appointment> findByDoctorIdAndAppointmentDateTimeAndStatus(
+            Long doctorId,
             LocalDateTime dateTime,
             AppointmentStatus status
     );
