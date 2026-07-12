@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -30,12 +31,12 @@ public class SpecialtyController {
 
     @GetMapping
     @Operation(summary = "Busca paginada de especialidades")
-    public ResponseEntity<Page<SpecialtyResponseDTO>> findAll(Pageable pageable){
+    public ResponseEntity<Page<SpecialtyResponseDTO>> findAll(@ParameterObject Pageable pageable){
         Page<SpecialtyResponseDTO> listSpecialties = specialtyService.findAll(pageable);
         return ResponseEntity.ok(listSpecialties);
     }
     @PostMapping
-    @Operation(summary = "Cadastar uma especialidade")
+    @Operation(summary = "Cadastrar uma especialidade")
     public ResponseEntity<SpecialtyResponseDTO> insert(@Valid @RequestBody SpecialtyRequestDTO dto){
         SpecialtyResponseDTO dtoResponse = specialtyService.insert(dto);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")

@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -31,7 +32,7 @@ public class PatientController {
 
     @GetMapping
     @Operation(summary = "Busca paginada de pacientes")
-    public ResponseEntity<Page<PatientResponseDTO>> findAll(Pageable pageable){
+    public ResponseEntity<Page<PatientResponseDTO>> findAll(@ParameterObject Pageable pageable){
         Page<PatientResponseDTO> listPatients = patientService.findAll(pageable);
         return ResponseEntity.ok(listPatients);
     }
