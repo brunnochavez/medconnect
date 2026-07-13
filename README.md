@@ -28,8 +28,6 @@ Para acessar localmente:
 
 * Ampliar a cobertura de testes unitários.
 * Segurança e Autenticação (Spring Security).
-* Containerização com Docker.
-* Deploy em ambiente de nuvem.
 
 Fiz esse diagrama para mostrar como as tabelas se conversam:
 
