@@ -1,50 +1,35 @@
-# MedConnectCenter API 🩺
+# MedConnect API
 
-> Uma API RESTful robusta para gestão de agendamentos de uma clínica médica, desenvolvida com foco em integridade de dados, prevenção de concorrência e regras de negócio do mundo real.
+Sistema de Agendamento de Consultas Médicas
 
-## 💻 Sobre o Projeto
+API RESTful desenvolvida para o gerenciamento completo de agendamentos de uma clínica médica.
 
-O MedConnectCenter não é apenas um simples cadastro (CRUD). Este projeto foi desenhado para resolver problemas reais de uma clínica médica, como sobreposição de horários e integridade do histórico de pacientes. A API gerencia o ciclo de vida completo de uma consulta médica (Agendada ➡️ Confirmada ➡️ Realizada / Cancelada), validando regras estritas de horário e disponibilidade.
+## O que já está implementado:
 
-## 🛠️ Tecnologias Utilizadas
+* **Arquitetura em Camadas:** Divisão entre Controllers, Services, Repositories e DTOs.
+* **Tráfego Seguro:** Uso do padrão DTO para blindar as entidades do banco de dados.
+* **Validação e Tratamento de Erros:** Handler global de exceções para respostas HTTP semânticas (400, 404, 409, etc).
+* **Regras de Negócio:** Verificação de conflito de horário para médico e paciente, ciclo de vida completo da consulta (agendada → confirmada → realizada/cancelada) e reaproveitamento automático de horários liberados por cancelamento.
+* **Prevenção de Concorrência:** Lock otimista (`@Version`) para evitar que edições simultâneas corrompam o estado da consulta.
+* **Paginação:** Rotas de listagem otimizadas com o Spring Data Pageable.
+* **Testes Unitários:** Cobertura iniciada com JUnit 5 e Mockito na camada de Service.
 
-* **Java 21:** Utilização de recursos modernos como `Records` para DTOs, garantindo imutabilidade.
-* **Spring Boot 4:** Framework principal da aplicação.
-* **Spring Data JPA & Hibernate:** Mapeamento Objeto-Relacional (ORM) e persistência de dados.
-* **Oracle Database & H2:** Oracle no perfil `dev` (ambiente similar à produção); H2 em memória no perfil `test`, usado por padrão para rodar e demonstrar o projeto sem configuração externa.
-* **Spring Validation:** Validação de dados de entrada na camada de controle.
-* **Swagger (Springdoc OpenAPI):** Documentação interativa da API.
-* **Postman:** Coleção de requisições exportada para facilitar testes locais de endpoints e diagnóstico de *status codes*.
+## Documentação da API (Swagger)
 
-## 🏗️ Decisões Arquiteturais
+O projeto possui uma documentação construída com Swagger (springdoc-openapi).
+Através dela, é possível visualizar todos os endpoints, regras de negócio e testar as requisições diretamente pelo navegador.
 
-Durante o desenvolvimento, algumas decisões arquiteturais importantes foram tomadas para garantir que o sistema se comportasse de forma previsível em um ambiente de produção (múltiplos usuários simultâneos):
+Para acessar localmente:
 
-* **Prevenção de *Race Conditions* (Condição de Corrida):**
-  * **Lock Otimista (`@Version`):** Implementado no Hibernate para impedir que edições simultâneas corrompam o estado da consulta (ex: paciente e secretária tentando cancelar e confirmar a mesma consulta no mesmo exato milissegundo).
-  * **Unique Constraints (Catraca do Banco):** Índices compostos no banco de dados para garantir matematicamente que dois pacientes não consigam reservar o mesmo médico, no mesmo dia e horário.
-* **Soft Delete Estruturado:** Exclusão lógica de médicos e pacientes sem o uso de filtros globais de invisibilidade. Isso garante que pacientes antigos não percam seus relatórios e históricos de consultas com médicos que já foram inativados ou desligados da clínica.
-* **Tratamento Global de Exceções (`@RestControllerAdvice`):** Padronização das respostas de erro da API. Em vez de expor as *stack traces* e *queries* SQL (evitando *Information Disclosure*), a API devolve mensagens amigáveis e *Status Codes* HTTP corretos (como `409 Conflict` para choques de agenda, `422 Unprocessable Entity` ou `404 Not Found`).
-* **Padrão DTO (Data Transfer Object):** Separação estrita entre as entidades de banco de dados e os dados expostos na API, blindando a estrutura interna (como no relacionamento entre Médico, Paciente e Especialidades).
+1. Execute o projeto na sua IDE (sobe com H2 em memória e dados de exemplo, sem precisar configurar banco).
+2. Abra o navegador e acesse a URL: `http://localhost:8080/swagger-ui.html`
 
-## 🚀 Como Executar o Projeto
+## Próximos Passos:
 
-1. Clone este repositório:
-   ```bash
-   git clone https://github.com/brunnochavez/medconnect.git
-   cd medconnect
-   ```
-
-2. Rode a aplicação (o Maven Wrapper já vem no projeto, não precisa ter o Maven instalado):
-   ```bash
-   ./mvnw spring-boot:run
-   ```
-
-3. Por padrão, o `application.properties` ativa o perfil `test`, que sobe um banco H2 em memória já populado com médicos, pacientes, especialidades e consultas de exemplo — não é preciso configurar nenhum banco externo para explorar a API:
-   - **Swagger UI:** http://localhost:8080/swagger-ui.html
-   - **Console do H2:** http://localhost:8080/h2-console (JDBC URL `jdbc:h2:mem:medconnect`, usuário `sa`, sem senha)
-
-4. Para rodar contra um Oracle local em vez do H2, suba com o perfil `dev` (`--spring.profiles.active=dev`) e, se quiser, sobrescreva as credenciais padrão pelas variáveis de ambiente `DB_USERNAME` e `DB_PASSWORD`.
+* Ampliar a cobertura de testes unitários.
+* Segurança e Autenticação (Spring Security).
+* Containerização com Docker.
+* Deploy em ambiente de nuvem.
 
 Fiz esse diagrama para mostrar como as tabelas se conversam:
 
