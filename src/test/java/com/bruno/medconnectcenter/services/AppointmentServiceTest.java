@@ -1,5 +1,4 @@
 package com.bruno.medconnectcenter.services;
-
 import com.bruno.medconnectcenter.dtos.AppointmentResponseDTO;
 import com.bruno.medconnectcenter.entities.Appointment;
 import com.bruno.medconnectcenter.entities.AppointmentStatus;
@@ -14,12 +13,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import javax.print.Doc;
-
 import java.time.LocalDateTime;
 import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -65,6 +60,5 @@ class AppointmentServiceTest {
 
         assertEquals(AppointmentStatus.CONFIRMADA, result.status());
         verify(appointmentRepository).save(appointment);
-
     }
 }

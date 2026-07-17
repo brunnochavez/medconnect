@@ -100,9 +100,6 @@ public class AppointmentService {
             throw new IllegalArgumentException("Este médico não atende no dia ou horário informados!");
         }
 
-        // Se já existir uma consulta CANCELADA para esse médico neste exato horário, reaproveita a mesma
-        // linha em vez de criar uma nova — assim a constraint única (doctor_id, appointment_date_time)
-        // nunca barra o reagendamento de um horário que foi liberado por cancelamento.
         Appointment appointment = appointmentRepository
                 .findByDoctorIdAndAppointmentDateTimeAndStatus(dto.doctorId(), dto.appointmentDateTime(), AppointmentStatus.CANCELADA)
                 .orElseGet(Appointment::new);
@@ -116,8 +113,7 @@ public class AppointmentService {
         try {
             appointment = appointmentRepository.save(appointment);
         } catch (DataIntegrityViolationException e) {
-            // Rede de segurança para concorrência: duas requisições passaram pelas checagens acima
-            // ao mesmo tempo. A constraint única do banco barra a segunda gravação.
+
             throw new DataIntegrityViolationException("Horário indisponível, por favor escolha outro horário.");
         }
 
@@ -126,7 +122,7 @@ public class AppointmentService {
 
     @Transactional
     public AppointmentResponseDTO confirm(Long id){
-        Appointment appointment = verify(id);
+        Appointment appointment = verifyAppointment(id);
 
         if(appointment.getAppointmentDateTime().isBefore(LocalDateTime.now())){
             throw new IllegalArgumentException("Não é possível confirmar uma consulta cujo horário já passou!");
@@ -143,7 +139,7 @@ public class AppointmentService {
 
     @Transactional
     public AppointmentResponseDTO cancel(Long id){
-        Appointment appointment = verify(id);
+        Appointment appointment = verifyAppointment(id);
 
         if(appointment.getAppointmentDateTime().isBefore(LocalDateTime.now())){
             throw new IllegalArgumentException("Não é possível cancelar uma consulta cujo horário já passou!");
@@ -156,7 +152,7 @@ public class AppointmentService {
 
     @Transactional
     public AppointmentResponseDTO carriedOut(Long id){
-        Appointment appointment = verify(id);
+        Appointment appointment = verifyAppointment(id);
 
         if(appointment.getStatus() != AppointmentStatus.CONFIRMADA){
             throw new IllegalArgumentException("Apenas consulta com Status CONFIRMADA, pode ser marcado como " +
@@ -202,7 +198,7 @@ public class AppointmentService {
         return availableSlots.stream().sorted().toList();
     }
 
-    private Appointment verify (Long id){
+    private Appointment verifyAppointment (Long id){
         Appointment appointment = appointmentRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Consulta não encontrada!")
         );
